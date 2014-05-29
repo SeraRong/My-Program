@@ -1,0 +1,236 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<title>拖拽效果实现</title>
+<style>
+.draggable { width: 150px; height: 150px; padding: 0.5em; }
+  
+.rRightDown {
+	Z-INDEX: 5; POSITION: absolute; WIDTH: 7px; DISPLAY: none; BACKGROUND: #c00; HEIGHT: 7px; FONT-SIZE: 0px
+}
+
+.rLeftDown {
+	Z-INDEX: 5; POSITION: absolute; WIDTH: 7px; DISPLAY: none; BACKGROUND: #c00; HEIGHT: 7px; FONT-SIZE: 0px
+}
+
+.rLeftUp {
+	Z-INDEX: 5; POSITION: absolute; WIDTH: 7px; DISPLAY: none; BACKGROUND: #c00; HEIGHT: 7px; FONT-SIZE: 0px
+}
+.rRightUp {
+	Z-INDEX: 5; POSITION: absolute; WIDTH: 7px; DISPLAY: none; BACKGROUND: #c00; HEIGHT: 7px; FONT-SIZE: 0px
+}
+.rRight {
+	Z-INDEX: 5; POSITION: absolute; WIDTH: 7px; DISPLAY: none; BACKGROUND: #c00; HEIGHT: 7px; FONT-SIZE: 0px
+}
+.rLeft {
+	Z-INDEX: 5; POSITION: absolute; WIDTH: 7px; DISPLAY: none; BACKGROUND: #c00; HEIGHT: 7px; FONT-SIZE: 0px
+}
+.rUp {
+	Z-INDEX: 5; POSITION: absolute; WIDTH: 7px; DISPLAY: none; BACKGROUND: #c00; HEIGHT: 7px; FONT-SIZE: 0px
+}
+.rDown {
+	Z-INDEX: 5; POSITION: absolute; WIDTH: 7px; DISPLAY: none; BACKGROUND: #c00; HEIGHT: 7px; FONT-SIZE: 0px
+}
+.rLeftDown {
+	CURSOR: ne-resize
+}
+.rRightUp {
+	CURSOR: ne-resize
+}
+.rRightDown {
+	CURSOR: nw-resize
+}
+.rLeftUp {
+	CURSOR: nw-resize
+}
+.rRight {
+	CURSOR: e-resize
+}
+.rLeft {
+	CURSOR: e-resize
+}
+.rUp {
+	CURSOR: n-resize
+}
+.rDown {
+	CURSOR: n-resize
+}
+.rLeftDown {
+	BOTTOM: -4px; LEFT: -4px
+}
+.rRightUp {
+	RIGHT: -4px; TOP: -4px
+}
+.rRightDown {
+	BACKGROUND-COLOR: #00f; BOTTOM: -4px; RIGHT: -4px
+}
+.rLeftUp {
+	TOP: -4px; LEFT: -4px
+}
+.rRight {
+	MARGIN-TOP: -4px; RIGHT: -4px; TOP: 50%
+}
+.rLeft {
+	MARGIN-TOP: -4px; TOP: 50%; LEFT: -4px
+}
+.rUp {
+	MARGIN-LEFT: -4px; TOP: -4px; LEFT: 50%
+}
+.rDown {
+	BOTTOM: -4px; MARGIN-LEFT: -4px; LEFT: 50%
+}
+</style>
+<script type="text/javascript">
+var EventUtil = {
+    getEvent: function (event) {
+        return event ? event : window.event;
+    },
+    getTarget: function (event) {
+        return event.target || event.srcElement;
+    },
+    addHandler: function (element, type, handler) {
+        if (element.addEventListener) {
+            element.addEventListener(type, handler, false);
+        } else if (element.attachEvent) {
+            element.attachEvent("on" + type, handler);
+        } else {
+            element["on" + type] = handler;
+        }
+    },
+    removeHandler: function (element, type, handler) {
+        if (element.removeEventListener) {
+            element.removeEventListener(type, handler, false);
+        } else if (element.detachEvent) {
+            element.detachEvent("on" + type, handler);
+        } else {
+            element["on" + type] = null;
+        }
+    }
+};
+
+var DragDrop = function () {
+    var dragging = null;
+	var diffX = 0;
+    var diffY = 0;
+	
+    function handleEvent(event) {
+        //获取事件和目标
+        event = EventUtil.getEvent(event);
+        var target = EventUtil.getTarget(event);
+        //确定事件类型
+        switch (event.type) {
+        case "mousedown":
+            if (target.className.indexOf("draggable") > -1) {
+                dragging = target;
+                diffX = event.clientX - target.offsetLeft;
+                diffY = event.clientY - target.offsetTop;
+				
+				document.getElementById(target.id+"_rRightDown").style.display = "block";
+				document.getElementById(target.id+"_rLeftDown").style.display = "block";
+				document.getElementById(target.id+"_rRightUp").style.display = "block";
+				document.getElementById(target.id+"_rLeftUp").style.display = "block";
+				document.getElementById(target.id+"_rRight").style.display = "block";
+				document.getElementById(target.id+"_rLeft").style.display = "block";
+				document.getElementById(target.id+"_rUp").style.display = "block";
+				document.getElementById(target.id+"_rDown").style.display = "block";
+
+				var childrenDiv = document.getElementById("bgDiv").getElementsByTagName("div");
+				var len = childrenDiv.length;
+				for (var i = 0; i < len; i++) {
+					if (childrenDiv[i].id != target.id && childrenDiv[i].className.indexOf("draggable") > -1) {
+						document.getElementById(childrenDiv[i].id+"_rRightDown").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rLeftDown").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rRightUp").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rLeftUp").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rRight").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rLeft").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rUp").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rDown").style.display = "none";
+					}
+				}								
+            } else {
+				var childrenDiv = document.getElementById("bgDiv").getElementsByTagName("div");
+				var len = childrenDiv.length;
+				for (var i = 0; i < len; i++) {
+					if (childrenDiv[i].className.indexOf("draggable") > -1) {
+						document.getElementById(childrenDiv[i].id+"_rRightDown").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rLeftDown").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rRightUp").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rLeftUp").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rRight").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rLeft").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rUp").style.display = "none";
+						document.getElementById(childrenDiv[i].id+"_rDown").style.display = "none";
+					}
+				}			
+			}
+            break;
+        case "mousemove":
+            if (dragging !== null) {
+                // 获取事件
+                event = EventUtil.getEvent(event);
+                // 指定位置
+                dragging.style.left = (event.clientX - diffX) + "px";
+                dragging.style.top = (event.clientY - diffY) + "px";
+            }
+            break;
+        case "mouseup":
+            dragging = null;
+            break;
+        }
+    };
+    //公共接口
+    return {
+        enable: function () {
+            EventUtil.addHandler(document, "mousedown", handleEvent);
+            EventUtil.addHandler(document, "mousemove", handleEvent);
+            EventUtil.addHandler(document, "mouseup", handleEvent);
+        },
+        disable: function () {
+            EventUtil.removeHandler(document, "mousedown", handleEvent);
+            EventUtil.removeHandler(document, "mousemove", handleEvent);
+            EventUtil.removeHandler(document, "mouseup", handleEvent);
+        }
+    }
+}();
+
+//启用拖放
+DragDrop.enable();
+</script>
+</head>
+<body>
+<div id="bgDiv">
+  <div id="dragDiv" class="draggable" style="position:absolute; background:red">
+    <span id='dragDiv_rRightDown' class='rRightDown'></span>
+    <span id='dragDiv_rLeftDown' class='rLeftDown'></span>
+    <span id='dragDiv_rRightUp' class='rRightUp'></span>
+    <span id='dragDiv_rLeftUp' class='rLeftUp'></span>
+    <span id='dragDiv_rRight' class='rRight'></span>
+    <span id='dragDiv_rLeft' class='rLeft'></span>
+    <span id='dragDiv_rUp' class='rUp'></span>
+    <span id='dragDiv_rDown' class='rDown'></span>
+  </div>
+  <div id="drag2Div" class="draggable" style="position:absolute; background:blue">
+    <span id='drag2Div_rRightDown' class='rRightDown'></span>
+    <span id='drag2Div_rLeftDown' class='rLeftDown'></span>
+    <span id='drag2Div_rRightUp' class='rRightUp'></span>
+    <span id='drag2Div_rLeftUp' class='rLeftUp'></span>
+    <span id='drag2Div_rRight' class='rRight'></span>
+    <span id='drag2Div_rLeft' class='rLeft'></span>
+    <span id='drag2Div_rUp' class='rUp'></span>
+    <span id='drag2Div_rDown' class='rDown'></span>
+  </div>
+  <div id="drag3Div" class="draggable" style="position:absolute; background:yellow">
+    <span id='drag3Div_rRightDown' class='rRightDown'></span>
+    <span id='drag3Div_rLeftDown' class='rLeftDown'></span>
+    <span id='drag3Div_rRightUp' class='rRightUp'></span>
+    <span id='drag3Div_rLeftUp' class='rLeftUp'></span>
+    <span id='drag3Div_rRight' class='rRight'></span>
+    <span id='drag3Div_rLeft' class='rLeft'></span>
+    <span id='drag3Div_rUp' class='rUp'></span>
+    <span id='drag3Div_rDown' class='rDown'></span>
+  </div>
+</div>
+</body>
+</html>
